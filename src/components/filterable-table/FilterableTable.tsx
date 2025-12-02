@@ -270,13 +270,13 @@ export function FilterableTable<T extends Record<string, unknown>>(
 										</For>
 										<div class={styles["column-actions"]}>
 											<button
-												class="select-all"
+												class={styles["select-all"]}
 												onClick={selectAllColumns}
 											>
 												All
 											</button>
 											<button
-												class="select-none"
+												class={styles["select-none"]}
 												onClick={selectNoColumns}
 											>
 												Reset

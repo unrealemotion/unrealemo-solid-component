@@ -5,16 +5,6 @@ export { FilterableTable, default } from "./FilterableTable";
 export { AdvancedFilter } from "./AdvancedFilter";
 export { DataTable } from "./DataTable";
 
-// UI Components
-export { Button, Card } from "./ui";
-export type {
-	ButtonProps,
-	ButtonColor,
-	ButtonVariant,
-	ButtonSize,
-	CardProps,
-} from "./ui";
-
 // Types
 export type {
 	ColumnDefinition,
