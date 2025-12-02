@@ -2,18 +2,18 @@
 export { FilterableTable, default } from "./FilterableTable";
 
 // Sub-components (for advanced usage)
-export { AdvancedFilter } from "./components/AdvancedFilter";
-export { DataTable } from "./components/DataTable";
+export { AdvancedFilter } from "./AdvancedFilter";
+export { DataTable } from "./DataTable";
 
 // UI Components
-export { Button, Card } from "./components/ui";
+export { Button, Card } from "./ui";
 export type {
 	ButtonProps,
 	ButtonColor,
 	ButtonVariant,
 	ButtonSize,
 	CardProps,
-} from "./components/ui";
+} from "./ui";
 
 // Types
 export type {

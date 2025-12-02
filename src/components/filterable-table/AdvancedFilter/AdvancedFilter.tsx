@@ -9,8 +9,8 @@ import type {
 	FilterGroup,
 	FilterCondition,
 	FilterNode,
-} from "../../types";
-import { generateId, createDefaultFilter, deepClone } from "../../types";
+} from "../types";
+import { generateId, createDefaultFilter, deepClone } from "../types";
 import styles from "./AdvancedFilter.module.scss";
 
 // Mutable filter values store (prevents re-renders on input)

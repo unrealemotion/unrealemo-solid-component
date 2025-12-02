@@ -2,7 +2,7 @@ import { For, Show, JSXElement, createSignal, createMemo, onCleanup } from "soli
 import SortAscIcon from "~icons/mdi/sort-ascending";
 import SortDescIcon from "~icons/mdi/sort-descending";
 import SortIcon from "~icons/mdi/sort";
-import type { DataTableProps, ColumnDefinition } from "../../types";
+import type { DataTableProps, ColumnDefinition } from "../types";
 import styles from "./DataTable.module.scss";
 
 export function DataTable<T extends Record<string, unknown>>(

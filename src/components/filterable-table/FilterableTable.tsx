@@ -1,8 +1,8 @@
 import { createSignal, createMemo, Show, For, createEffect } from "solid-js";
 import { Portal } from "solid-js/web";
-import { AdvancedFilter } from "./components/AdvancedFilter";
-import { DataTable } from "./components/DataTable";
-import { Card } from "./components/ui";
+import { AdvancedFilter } from "./AdvancedFilter";
+import { DataTable } from "./DataTable";
+import { Card } from "./ui";
 import type {
 	FilterableTableProps,
 	SortState,

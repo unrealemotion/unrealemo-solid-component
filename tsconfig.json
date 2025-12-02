@@ -15,11 +15,12 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": ".",
+    "types": ["vite/client"],
     "paths": {
       "~icons/*": ["./node_modules/.unplugin-icons/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/env.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
 
