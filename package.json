@@ -1,0 +1,60 @@
+{
+  "name": "unrealemo-solid-component",
+  "version": "0.1.0",
+  "description": "A collection of elegant, reusable SolidJS components",
+  "author": "UnrealEmo",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles": "./dist/style.css"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build && npm run build:types",
+    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.8.0"
+  },
+  "devDependencies": {
+    "@iconify/json": "^2.2.170",
+    "sass": "^1.71.0",
+    "typescript": "^5.3.3",
+    "unplugin-icons": "^0.18.5",
+    "vite": "^5.1.0",
+    "vite-plugin-solid": "^2.10.0"
+  },
+  "keywords": [
+    "solid",
+    "solidjs",
+    "components",
+    "ui",
+    "table",
+    "filter",
+    "data-table"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unrealemotion/unrealemo-solid-component.git"
+  },
+  "bugs": {
+    "url": "https://github.com/unrealemotion/unrealemo-solid-component/issues"
+  },
+  "homepage": "https://github.com/unrealemotion/unrealemo-solid-component#readme"
+}
+
