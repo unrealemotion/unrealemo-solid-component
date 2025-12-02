@@ -95,7 +95,7 @@ export interface FilterableTableProps<T = Record<string, unknown>> {
 	allowResize?: boolean;
 	/** Whether to show column selector (default: true) */
 	showColumnSelector?: boolean;
-	/** Base name for export file (will append timestamp, default: "export") */
+	/** Base name for exported file (default: "export") */
 	exportFileName?: string;
 }
 
