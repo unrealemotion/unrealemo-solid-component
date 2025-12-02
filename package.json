@@ -1,6 +1,6 @@
 {
   "name": "unrealemo-solid-component",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "A collection of elegant, reusable SolidJS components",
   "author": "UnrealEmo",
   "license": "MIT",
@@ -13,7 +13,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles": "./dist/style.css"
+    "./styles": {
+      "import": "./dist/style.css",
+      "default": "./dist/style.css"
+    },
+    "./dist/style.css": "./dist/style.css"
   },
   "files": [
     "dist",
