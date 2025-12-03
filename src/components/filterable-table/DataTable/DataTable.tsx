@@ -5,11 +5,20 @@ import SortIcon from "~icons/mdi/sort";
 import type { DataTableProps, ColumnDefinition } from "../types";
 import styles from "./DataTable.module.scss";
 
+interface ResizeData {
+	leftColumn: string;
+	rightColumn: string;
+	startX: number;
+	leftStartWidth: number;
+	rightStartWidth: number;
+	minWidth: number;
+}
+
 export function DataTable<T extends Record<string, unknown>>(
 	props: DataTableProps<T>
 ): JSXElement {
 	// Resizing state - mutable object to avoid closure issues with event listeners
-	let resizeData = { column: "", startX: 0, startWidth: 0 };
+	let resizeData: ResizeData | null = null;
 	const [resizingColumn, setResizingColumn] = createSignal<string | null>(null);
 
 	// Get visible columns only
@@ -87,33 +96,81 @@ export function DataTable<T extends Record<string, unknown>>(
 
 	// --- Column Resizing ---
 	const handleResizeMove = (e: MouseEvent): void => {
-		if (!resizeData.column) return;
-		const diff = e.clientX - resizeData.startX;
-		const newWidth = Math.max(50, resizeData.startWidth + diff);
-		props.onColumnResize?.(resizeData.column, `${newWidth}px`);
+		if (!resizeData) return;
+
+		const { leftColumn, rightColumn, startX, leftStartWidth, rightStartWidth, minWidth } = resizeData;
+		const diff = e.clientX - startX;
+
+		// Only update if there's actual movement
+		if (diff === 0) return;
+
+		// Calculate new widths - left column grows/shrinks, right column does opposite
+		const totalWidth = leftStartWidth + rightStartWidth;
+		let newLeftWidth = leftStartWidth + diff;
+		let newRightWidth = rightStartWidth - diff;
+
+		// Enforce minimum widths
+		if (newLeftWidth < minWidth) {
+			newLeftWidth = minWidth;
+			newRightWidth = totalWidth - minWidth;
+		}
+		if (newRightWidth < minWidth) {
+			newRightWidth = minWidth;
+			newLeftWidth = totalWidth - minWidth;
+		}
+
+		// Update both columns
+		props.onColumnResize?.(leftColumn, `${newLeftWidth}px`);
+		props.onColumnResize?.(rightColumn, `${newRightWidth}px`);
 	};
 
 	const handleResizeEnd = (): void => {
-		resizeData.column = "";
+		resizeData = null;
 		setResizingColumn(null);
 		document.removeEventListener("mousemove", handleResizeMove);
 		document.removeEventListener("mouseup", handleResizeEnd);
 	};
 
-	const handleResizeStart = (col: ColumnDefinition<T>, e: MouseEvent): void => {
-		if (props.allowResize === false || col.resizable === false) return;
+	const handleResizeStart = (colIndex: number, e: MouseEvent): void => {
+		const cols = visibleColumns();
+		const leftCol = cols[colIndex];
+		const rightCol = cols[colIndex + 1];
+
+		if (props.allowResize === false || !leftCol || !rightCol) return;
+		if (leftCol.resizable === false || rightCol.resizable === false) return;
+
 		e.preventDefault();
 		e.stopPropagation();
 
 		const th = (e.target as HTMLElement).parentElement;
-		if (!th) return;
+		const nextTh = th?.nextElementSibling as HTMLElement;
+		if (!th || !nextTh) return;
+
+		const minWidth = 50;
+
+		// Lock ALL column widths to their current rendered size before resizing
+		// This prevents other columns from shifting when we resize
+		const headerRow = th.parentElement;
+		if (headerRow) {
+			const allThs = headerRow.querySelectorAll('th');
+			allThs.forEach((headerTh, idx) => {
+				if (idx < cols.length) {
+					const col = cols[idx];
+					props.onColumnResize?.(col.key as string, `${headerTh.offsetWidth}px`);
+				}
+			});
+		}
 
 		resizeData = {
-			column: col.key as string,
+			leftColumn: leftCol.key as string,
+			rightColumn: rightCol.key as string,
 			startX: e.clientX,
-			startWidth: th.offsetWidth,
+			leftStartWidth: th.offsetWidth,
+			rightStartWidth: nextTh.offsetWidth,
+			minWidth,
 		};
-		setResizingColumn(col.key as string);
+
+		setResizingColumn(leftCol.key as string);
 
 		document.addEventListener("mousemove", handleResizeMove);
 		document.addEventListener("mouseup", handleResizeEnd);
@@ -124,8 +181,15 @@ export function DataTable<T extends Record<string, unknown>>(
 		document.removeEventListener("mouseup", handleResizeEnd);
 	});
 
-	const isResizable = (col: ColumnDefinition<T>): boolean =>
-		props.allowResize !== false && col.resizable !== false;
+	// Check if resizer should show between this column and the next
+	const canShowResizer = (colIndex: number): boolean => {
+		if (props.allowResize === false) return false;
+		const cols = visibleColumns();
+		const leftCol = cols[colIndex];
+		const rightCol = cols[colIndex + 1];
+		if (!rightCol) return false; // No resizer on the last column
+		return leftCol.resizable !== false && rightCol.resizable !== false;
+	};
 
 	return (
 		<div class={styles["table-container"]}>
@@ -133,7 +197,7 @@ export function DataTable<T extends Record<string, unknown>>(
 				<thead>
 					<tr>
 						<For each={visibleColumns()}>
-							{(col) => (
+							{(col, colIndex) => (
 								<th
 									class={getHeaderClass(col)}
 									style={getHeaderStyle(col)}
@@ -145,10 +209,10 @@ export function DataTable<T extends Record<string, unknown>>(
 											{getSortIcon(col.key as string)}
 										</Show>
 									</div>
-									<Show when={isResizable(col)}>
+									<Show when={canShowResizer(colIndex())}>
 										<div
 											class={styles["resizer"]}
-											onMouseDown={(e) => handleResizeStart(col, e)}
+											onMouseDown={(e) => handleResizeStart(colIndex(), e)}
 										/>
 									</Show>
 								</th>

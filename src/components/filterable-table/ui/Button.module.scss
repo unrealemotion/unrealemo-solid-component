@@ -1,3 +1,5 @@
+@use "sass:list";
+
 .btn {
 	display: inline-flex;
 	align-items: center;
@@ -58,9 +60,9 @@ $colors: (
 
 // Generate solid variants
 @each $name, $vals in $colors {
-	$bg: nth($vals, 1);
-	$hover: nth($vals, 2);
-	$text: nth($vals, 3);
+	$bg: list.nth($vals, 1);
+	$hover: list.nth($vals, 2);
+	$text: list.nth($vals, 3);
 
 	.btn-#{$name}.btn-solid {
 		background-color: $bg;
