@@ -4,6 +4,10 @@ import PlusIcon from "~icons/mdi/plus";
 import DeleteIcon from "~icons/mdi/delete";
 import FolderPlusIcon from "~icons/mdi/folder-plus";
 import RefreshIcon from "~icons/mdi/refresh";
+import FilterIcon from "~icons/mdi/filter-outline";
+import FilterOffIcon from "~icons/mdi/filter-off-outline";
+import ChevronDownIcon from "~icons/mdi/chevron-down";
+import ChevronUpIcon from "~icons/mdi/chevron-up";
 import type {
 	AdvancedFilterProps,
 	FilterGroup,
@@ -313,6 +317,7 @@ export const AdvancedFilter: Component<AdvancedFilterProps> = (props) => {
 	const [isAutoApply, setIsAutoApply] = createSignal(
 		props.defaultAutoApply ?? true
 	);
+	const [isExpanded, setIsExpanded] = createSignal(false);
 	let debouncedTimerRef: ReturnType<typeof setTimeout> | null = null;
 
 	// Evaluates a single row against the filter tree
@@ -383,10 +388,20 @@ export const AdvancedFilter: Component<AdvancedFilterProps> = (props) => {
 		}
 	};
 
-	const handleReset = () => {
-		// Create evaluator that matches everything
+	// Un-filter: revert filtering (show all data) but keep filter inputs
+	const handleUnfilter = () => {
 		props.onFilterChange(() => true);
 		props.onReset?.();
+	};
+
+	// Clear: reset filter inputs to default state
+	const handleClear = () => {
+		// Clear values store
+		filterValuesStore.clear();
+		// Reset filter tree to default
+		setFilterRoot(createDefaultFilter());
+		// Also reset the filter evaluator to show all
+		props.onFilterChange(() => true);
 	};
 
 	onCleanup(() => {
@@ -398,39 +413,61 @@ export const AdvancedFilter: Component<AdvancedFilterProps> = (props) => {
 	return (
 		<div class={styles["filter-card"]}>
 			<div class={styles["filter-header"]}>
-				<h6>Filter - Advanced</h6>
-				<div class={styles["filter-controls"]}>
-					<label class={styles["auto-apply-label"]}>
-						<input
-							type="checkbox"
-							checked={isAutoApply()}
-							onChange={(e) => setIsAutoApply(e.currentTarget.checked)}
-						/>
-						<span>Auto-apply (500ms)</span>
-					</label>
-					<Button
-						color="secondary"
-						variant="outline"
-						size="sm"
-						startIcon={<RefreshIcon />}
-						onClick={handleReset}
-					>
-						Reset
-					</Button>
-				</div>
+				<button
+					class={styles["expand-toggle"]}
+					onClick={() => setIsExpanded(!isExpanded())}
+					title={isExpanded() ? "Collapse filter" : "Expand filter"}
+				>
+					<FilterIcon />
+					<Show when={isExpanded()} fallback={<ChevronDownIcon />}>
+						<ChevronUpIcon />
+					</Show>
+				</button>
+				<Show when={isExpanded()}>
+					<div class={styles["filter-controls"]}>
+						<label class={styles["auto-apply-label"]}>
+							<input
+								type="checkbox"
+								checked={isAutoApply()}
+								onChange={(e) => setIsAutoApply(e.currentTarget.checked)}
+							/>
+							<span>Auto-apply (500ms)</span>
+						</label>
+						<Button
+							color="secondary"
+							variant="outline"
+							size="sm"
+							startIcon={<FilterOffIcon />}
+							onClick={handleUnfilter}
+						>
+							Un-filter
+						</Button>
+						<Button
+							color="danger"
+							variant="outline"
+							size="sm"
+							startIcon={<RefreshIcon />}
+							onClick={handleClear}
+						>
+							Clear
+						</Button>
+					</div>
+				</Show>
 			</div>
 
-			<div class={styles["filter-tree-container"]}>
-				<FilterGroupBuilder
-					group={filterRoot()}
-					columns={props.columns}
-					onStructureChange={handleStructureChange}
-					onValueChange={handleValueChange}
-					onEnterKey={handleEnterKey}
-					onRemove={() => {}}
-					isRoot
-				/>
-			</div>
+			<Show when={isExpanded()}>
+				<div class={styles["filter-tree-container"]}>
+					<FilterGroupBuilder
+						group={filterRoot()}
+						columns={props.columns}
+						onStructureChange={handleStructureChange}
+						onValueChange={handleValueChange}
+						onEnterKey={handleEnterKey}
+						onRemove={() => {}}
+						isRoot
+					/>
+				</div>
+			</Show>
 		</div>
 	);
 };
